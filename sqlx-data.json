@@ -1,5 +1,23 @@
 {
   "db": "SQLite",
+  "39fed26e10b58e5832d82675a6d9fa245f1eda29f57fbe76613fe34db100a7e1": {
+    "describe": {
+      "columns": [
+        {
+          "name": "ChannelId",
+          "ordinal": 0,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        true
+      ],
+      "parameters": {
+        "Right": 0
+      }
+    },
+    "query": "SELECT * FROM Channels"
+  },
   "5a9c17fd6f8502fde940a9152e2f6e7e08b102306be44b87f8e02f62138e180c": {
     "describe": {
       "columns": [],

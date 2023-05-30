@@ -14,6 +14,13 @@ async fn join(
 ) -> Result<(), Error> {
     let pool = &ctx.data().pool;
     let channel_id = ctx.channel_id().0 as i64;
+    let channel = sqlx::query!("SELECT * FROM Channels WHERE ChannelId = ?", channel_id)
+        .fetch_optional(pool)
+        .await;
+    if let Ok(Some(_)) = channel {
+        ctx.say("Channel already in database").await?;
+        return Ok(());
+    }
     sqlx::query!("INSERT INTO Channels VALUES (?)", channel_id)
         .execute(pool)
         .await
@@ -22,8 +29,36 @@ async fn join(
     Ok(())
 }
 
+async fn all_event_handler(
+    event: &poise::event::Event<'_>,
+    data: &Data,
+) -> Result<(), Error> {
+    match event {
+        poise::event::Event::Message { new_message } => {
+            println!("message created");
+            let msg = new_message;
+            let pool = &data.pool;
+            let channels = sqlx::query!("SELECT * FROM Channels")
+                .fetch_all(pool)
+                .await
+                .expect("Failed to fetch channels from database");
+            for channel in channels {
+                let channel_id = channel.ChannelId.unwrap() as u64;
+                println!("channel: {}", channel_id);
+                if channel_id == msg.channel_id.0 {
+                    println!("channel found");
+                    continue;
+                }
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() {
+    dotenv::dotenv().ok();
     let pool = SqlitePool::connect((std::env::var("DATABASE_URL").unwrap()).as_str())
         .await
         .unwrap();
@@ -31,6 +66,9 @@ async fn main() {
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
             commands: vec![join()],
+            event_handler: | ctx, event, _framework, data | {
+                Box::pin(all_event_handler(event, data))
+            },
             ..Default::default()
         })
         .token(std::env::var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN"))
