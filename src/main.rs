@@ -9,9 +9,7 @@ type Context<'a> = poise::Context<'a, Data, Error>;
 
 /// Displays your or another user's account creation date
 #[poise::command(slash_command)]
-async fn join(
-    ctx: Context<'_>,
-) -> Result<(), Error> {
+async fn join(ctx: Context<'_>) -> Result<(), Error> {
     let pool = &ctx.data().pool;
     let channel_id = ctx.channel_id().0 as i64;
     let channel = sqlx::query!("SELECT * FROM Channels WHERE ChannelId = ?", channel_id)
@@ -30,6 +28,7 @@ async fn join(
 }
 
 async fn all_event_handler(
+    ctx: &serenity::Context,
     event: &poise::event::Event<'_>,
     data: &Data,
 ) -> Result<(), Error> {
@@ -37,6 +36,9 @@ async fn all_event_handler(
         poise::event::Event::Message { new_message } => {
             println!("message created");
             let msg = new_message;
+            if msg.author.bot {
+                return Ok(());
+            }
             let pool = &data.pool;
             let channels = sqlx::query!("SELECT * FROM Channels")
                 .fetch_all(pool)
@@ -48,6 +50,45 @@ async fn all_event_handler(
                 if channel_id == msg.channel_id.0 {
                     println!("channel found");
                     continue;
+                };
+                let channel = ctx.cache.guild_channel(channel_id).unwrap();
+                println!("{}", msg.content);
+                if channel.is_text_based() {
+                    let webhooks = channel.webhooks(ctx).await.unwrap();
+                    let mut webhook: Option<serenity::Webhook> = None;
+                    for w in webhooks {
+                        if w.name == Some("gc-webhook".to_string()) {
+                            webhook = Some(w);
+                            break;
+                        }
+                    }
+                    if let Some(webhook) = webhook {
+                        println!("webhook found");
+                        webhook
+                            .execute(&ctx.http, false, |w| {
+                                w.content(msg.content.clone());
+                                w.username(msg.author.name.clone());
+                                w.avatar_url(msg.author.avatar_url().unwrap());
+                                w
+                            })
+                            .await
+                            .unwrap();
+                    } else {
+                        println!("webhook not found");
+                        let webhook = channel
+                            .create_webhook(&ctx.http, "gc-webhook")
+                            .await
+                            .unwrap();
+                        webhook
+                            .execute(&ctx.http, false, |w| {
+                                w.content(msg.content.clone());
+                                w.username(msg.author.name.clone());
+                                w.avatar_url(msg.author.avatar_url().unwrap());
+                                w
+                            })
+                            .await
+                            .unwrap();
+                    }
                 }
             }
         }
@@ -63,22 +104,23 @@ async fn main() {
         .await
         .unwrap();
     sqlx::migrate!().run(&pool).await.unwrap();
+    let mut intents = serenity::GatewayIntents::non_privileged();
+    intents.insert(serenity::GatewayIntents::GUILD_MESSAGES);
+    intents.insert(serenity::GatewayIntents::MESSAGE_CONTENT);
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
             commands: vec![join()],
-            event_handler: | ctx, event, _framework, data | {
-                Box::pin(all_event_handler(event, data))
+            event_handler: |ctx, event, _framework, data| {
+                Box::pin(all_event_handler(ctx, event, data))
             },
             ..Default::default()
         })
         .token(std::env::var("DISCORD_TOKEN").expect("missing DISCORD_TOKEN"))
-        .intents(serenity::GatewayIntents::non_privileged())
+        .intents(intents)
         .setup(|ctx, _ready, framework| {
             Box::pin(async move {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
-                Ok(Data {
-                    pool: pool.clone(),
-                })
+                Ok(Data { pool: pool.clone() })
             })
         });
     framework.run().await.unwrap();

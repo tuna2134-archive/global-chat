@@ -27,5 +27,23 @@
       }
     },
     "query": "INSERT INTO Channels VALUES (?)"
+  },
+  "5b79db0655b868606280e165c36dcfd32fc043e95aded3cd7191b40b44207123": {
+    "describe": {
+      "columns": [
+        {
+          "name": "ChannelId",
+          "ordinal": 0,
+          "type_info": "Int64"
+        }
+      ],
+      "nullable": [
+        true
+      ],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "SELECT * FROM Channels WHERE ChannelId = ?"
   }
 }
