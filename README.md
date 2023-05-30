@@ -4,8 +4,10 @@ Light weight discord global-chat bot
 ## Require
 - Rust
 - Discord message content intents
+- libssl-dev
+- pkg-config
 
-## 1. Build
+## 1. Compile
 ```sh
 SQLX_OFFLINE=true cargo build --release
 ```
@@ -27,5 +29,4 @@ DISCORD_TOKEN=<Your discord bot token>
 ```
 
 ## Command
-
 - `/join` - Join to GlobalChat
