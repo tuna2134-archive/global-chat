@@ -1,7 +1,9 @@
 # global-chat
+Light weight discord global-chat bot
 
 ## Require
 - Rust
+- Discord message content intents
 
 ## 1. Build
 ```sh
@@ -23,3 +25,7 @@ DISCORD_TOKEN=<Your discord bot token>
 ```
 ./target/release/global-chat
 ```
+
+## Command
+
+- `/join` - Join to GlobalChat
