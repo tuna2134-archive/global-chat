@@ -1,0 +1,13 @@
+{
+  "db": "SQLite",
+  "5a9c17fd6f8502fde940a9152e2f6e7e08b102306be44b87f8e02f62138e180c": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "INSERT INTO Channels VALUES (?)"
+  }
+}
