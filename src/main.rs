@@ -3,11 +3,11 @@ use sqlx::sqlite::SqlitePool;
 
 struct Data {
     pool: SqlitePool,
-} // User data, which is stored and accessible in all command invocations
+}
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
 
-/// Displays your or another user's account creation date
+/// グローバルチャットに参加します。
 #[poise::command(slash_command)]
 async fn join(ctx: Context<'_>) -> Result<(), Error> {
     let pool = &ctx.data().pool;
@@ -91,7 +91,10 @@ async fn all_event_handler(
                     }
                 }
             }
-        }
+        },
+        Ready { data_about_bot } => {
+            println!("{} is ready!", data_about_bot.user.name);
+        },
         _ => {}
     }
     Ok(())
