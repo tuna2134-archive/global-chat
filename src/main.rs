@@ -33,7 +33,7 @@ async fn all_event_handler(
     data: &Data,
 ) -> Result<(), Error> {
     match event {
-        poise::event::Event::Message { new_message } => {
+        poise::Event::Message { new_message } => {
             println!("message created");
             let msg = new_message;
             if msg.author.bot {
