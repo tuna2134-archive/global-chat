@@ -29,7 +29,7 @@ async fn join(ctx: Context<'_>) -> Result<(), Error> {
 
 async fn all_event_handler(
     ctx: &serenity::Context,
-    event: &poise::event::Event<'_>,
+    event: &poise::Event<'_>,
     data: &Data,
 ) -> Result<(), Error> {
     match event {
