@@ -92,7 +92,7 @@ async fn all_event_handler(
                 }
             }
         },
-        Ready { data_about_bot } => {
+        poise::Event::Ready { data_about_bot } => {
             println!("{} is ready!", data_about_bot.user.name);
         },
         _ => {}
