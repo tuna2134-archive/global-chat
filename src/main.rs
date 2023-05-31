@@ -71,13 +71,12 @@ async fn all_event_handler(
                                 w.avatar_url(msg.author.avatar_url().unwrap());
                                 w
                             })
-                            .await?
+                            .await?;
                     } else {
                         println!("webhook not found");
                         let webhook = channel
                             .create_webhook(&ctx.http, "gc-webhook")
-                            .await
-                            .unwrap();
+                            .await?;
                         webhook
                             .execute(&ctx.http, false, |w| {
                                 w.content(msg.content.clone());
@@ -85,8 +84,7 @@ async fn all_event_handler(
                                 w.avatar_url(msg.author.avatar_url().unwrap());
                                 w
                             })
-                            .await
-                            .unwrap();
+                            .await?;
                     }
                 }
             }
