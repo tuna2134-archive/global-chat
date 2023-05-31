@@ -54,7 +54,7 @@ async fn all_event_handler(
                 let channel = ctx.cache.guild_channel(channel_id).unwrap();
                 println!("{}", msg.content);
                 if channel.is_text_based() {
-                    let webhooks = channel.webhooks(ctx).await.unwrap();
+                    let webhooks = channel.webhooks(ctx).await?;
                     let mut webhook: Option<serenity::Webhook> = None;
                     for w in webhooks {
                         if w.name == Some("gc-webhook".to_string()) {
@@ -71,8 +71,7 @@ async fn all_event_handler(
                                 w.avatar_url(msg.author.avatar_url().unwrap());
                                 w
                             })
-                            .await
-                            .unwrap();
+                            .await?
                     } else {
                         println!("webhook not found");
                         let webhook = channel
