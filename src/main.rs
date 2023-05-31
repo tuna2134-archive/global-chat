@@ -86,6 +86,7 @@ async fn all_event_handler(
                                         w
                                     })
                                     .await?;
+                            }
                            }
                         },
                         None => {}
