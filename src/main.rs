@@ -51,41 +51,44 @@ async fn all_event_handler(
                     println!("channel found");
                     continue;
                 };
-                let channel = ctx.cache.guild_channel(channel_id).unwrap();
-                println!("{}", msg.content);
-                if channel.is_text_based() {
-                    let webhooks = channel.webhooks(ctx).await?;
-                    let mut webhook: Option<serenity::Webhook> = None;
-                    for w in webhooks {
-                        if w.name == Some("gc-webhook".to_string()) {
-                            webhook = Some(w);
-                            break;
-                        }
-                    }
-                    if let Some(webhook) = webhook {
-                        println!("webhook found");
-                        webhook
-                            .execute(&ctx.http, false, |w| {
-                                w.content(msg.content.clone());
-                                w.username(msg.author.name.clone());
-                                w.avatar_url(msg.author.avatar_url().unwrap());
-                                w
-                            })
-                            .await?;
-                    } else {
-                        println!("webhook not found");
-                        let webhook = channel
-                            .create_webhook(&ctx.http, "gc-webhook")
-                            .await?;
-                        webhook
-                            .execute(&ctx.http, false, |w| {
-                                w.content(msg.content.clone());
-                                w.username(msg.author.name.clone());
-                                w.avatar_url(msg.author.avatar_url().unwrap());
-                                w
-                            })
-                            .await?;
-                    }
+                match ctx.cache.guild_channel(channel_id) {
+                    Some(channel) => {
+                        println!("{}", msg.content);
+                        if channel.is_text_based() {
+                            let webhooks = channel.webhooks(ctx).await?;
+                            let mut webhook: Option<serenity::Webhook> = None;
+                            for w in webhooks {
+                                if w.name == Some("gc-webhook".to_string()) {
+                                    webhook = Some(w);
+                                    break;
+                                }
+                            }
+                            if let Some(webhook) = webhook {
+                                println!("webhook found");
+                                webhook
+                                   .execute(&ctx.http, false, |w| {
+                                       w.content(msg.content.clone());
+                                       w.username(msg.author.name.clone());
+                                       w.avatar_url(msg.author.avatar_url().unwrap());
+                                       w
+                                    })
+                                    .await?;
+                            } else {
+                                println!("webhook not found");
+                                let webhook = channel
+                                    .create_webhook(&ctx.http, "gc-webhook")
+                                    .await?;
+                                webhook
+                                    .execute(&ctx.http, false, |w| {
+                                        w.content(msg.content.clone());
+                                        w.username(msg.author.name.clone());
+                                        w.avatar_url(msg.author.avatar_url().unwrap());
+                                        w
+                                    })
+                                    .await?;
+                           }
+                        },
+                        None => {}
                 }
             }
         },
