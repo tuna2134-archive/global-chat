@@ -30,3 +30,4 @@ DISCORD_TOKEN=<Your discord bot token>
 
 ## Command
 - `/join` - Join to GlobalChat
+- `/leave` - Leave from GlobalChat
