@@ -89,9 +89,13 @@ async fn all_event_handler(
                         }
                     }
                     None => {
-                        sqlx::query!("DELETE FROM Channels WHERE ChannelId = ?", channel_id as i64)
-                            .execute(pool)
-                            .await?;
+                        let delete_channel_id = channel.ChannelId.unwrap();
+                        sqlx::query!(
+                            "DELETE FROM Channels WHERE ChannelId = ?",
+                            delete_channel_id
+                        )
+                        .execute(&data.pool)
+                        .await?;
                     }
                 }
             }
