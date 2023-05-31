@@ -45,5 +45,15 @@
       }
     },
     "query": "SELECT * FROM Channels WHERE ChannelId = ?"
+  },
+  "62ef766f7fcd39f4f87895f014a77a9c0aaf49e2f832dd0325fc33e294df63c3": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Right": 1
+      }
+    },
+    "query": "DELETE FROM Channels WHERE ChannelId = ?"
   }
 }
