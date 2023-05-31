@@ -27,6 +27,25 @@ async fn join(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
+// Leave from global chat
+#[poise::command(slash_command)]
+async fn leave(ctx: Context<'_>) -> Result<(), Error> {
+    let pool = &ctx.data().pool;
+    let channel_id = ctx.channel_id().0 as i64;
+    let channel = sqlx::query!("SELECT * FROM Channels WHERE ChannelId = ?", channel_id)
+        .fetch_optional(pool)
+        .await;
+    if let Ok(Some(_)) = channel {
+        sqlx::query!("DELETE FROM Channels WHERE ChannelId = ?", channel_id)
+            .execute(pool)
+            .await?;
+        ctx.say("Channel already in database").await?;
+        return Ok(());
+    }
+    ctx.say("You are't register yet.").await?;
+    Ok(())
+}
+
 async fn all_event_handler(
     ctx: &serenity::Context,
     event: &poise::Event<'_>,
@@ -40,6 +59,13 @@ async fn all_event_handler(
                 return Ok(());
             }
             let pool = &data.pool;
+            let from_ch_id = msg.channel_id.0 as i64;
+            let ch = sqlx::query!("SELECT * FROM Channels WHERE ChannelId = ?", from_ch_id)
+                .fetch_one(pool)
+                .await;
+            if ch.is_err() {
+                return Ok(());
+            }
             let channels = sqlx::query!("SELECT * FROM Channels")
                 .fetch_all(pool)
                 .await
@@ -110,6 +136,7 @@ async fn all_event_handler(
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
     dotenv::dotenv().ok();
     let pool = SqlitePool::connect((std::env::var("DATABASE_URL").unwrap()).as_str())
         .await
@@ -118,9 +145,10 @@ async fn main() {
     let mut intents = serenity::GatewayIntents::non_privileged();
     intents.insert(serenity::GatewayIntents::GUILD_MESSAGES);
     intents.insert(serenity::GatewayIntents::MESSAGE_CONTENT);
+    println!("Now booting...");
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![join()],
+            commands: vec![join(), leave()],
             event_handler: |ctx, event, _framework, data| {
                 Box::pin(all_event_handler(ctx, event, data))
             },
