@@ -66,18 +66,17 @@ async fn all_event_handler(
                             if let Some(webhook) = webhook {
                                 println!("webhook found");
                                 webhook
-                                   .execute(&ctx.http, false, |w| {
-                                       w.content(msg.content.clone());
-                                       w.username(msg.author.name.clone());
-                                       w.avatar_url(msg.author.avatar_url().unwrap());
-                                       w
+                                    .execute(&ctx.http, false, |w| {
+                                        w.content(msg.content.clone());
+                                        w.username(msg.author.name.clone());
+                                        w.avatar_url(msg.author.avatar_url().unwrap());
+                                        w
                                     })
                                     .await?;
                             } else {
                                 println!("webhook not found");
-                                let webhook = channel
-                                    .create_webhook(&ctx.http, "gc-webhook")
-                                    .await?;
+                                let webhook =
+                                    channel.create_webhook(&ctx.http, "gc-webhook").await?;
                                 webhook
                                     .execute(&ctx.http, false, |w| {
                                         w.content(msg.content.clone());
@@ -87,15 +86,15 @@ async fn all_event_handler(
                                     })
                                     .await?;
                             }
-                           }
-                        },
-                        None => {}
+                        }
+                    }
+                    None => {}
                 }
             }
-        },
+        }
         poise::Event::Ready { data_about_bot } => {
             println!("{} is ready!", data_about_bot.user.name);
-        },
+        }
         _ => {}
     }
     Ok(())
