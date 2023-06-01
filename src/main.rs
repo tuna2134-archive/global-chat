@@ -39,7 +39,7 @@ async fn leave(ctx: Context<'_>) -> Result<(), Error> {
         sqlx::query!("DELETE FROM Channels WHERE ChannelId = ?", channel_id)
             .execute(pool)
             .await?;
-        ctx.say("Channel already in database").await?;
+        ctx.say("Leave from GlobalChat").await?;
         return Ok(());
     }
     ctx.say("You are't register yet.").await?;
