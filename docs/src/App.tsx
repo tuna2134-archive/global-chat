@@ -3,7 +3,9 @@ import './App.css'
 function App() {
   return (
     <>
-      <h1 className="text-2xl">Hello</h1>
+      <header>
+        <h1 className="text-2xl">Hello</h1>
+      </header>
     </>
   )
 }
