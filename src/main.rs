@@ -53,7 +53,6 @@ async fn all_event_handler(
 ) -> Result<(), Error> {
     match event {
         poise::Event::Message { new_message } => {
-            println!("message created");
             let msg = new_message;
             if msg.author.bot {
                 return Ok(());
@@ -72,14 +71,11 @@ async fn all_event_handler(
                 .expect("Failed to fetch channels from database");
             for channel in channels {
                 let channel_id = channel.ChannelId.unwrap() as u64;
-                println!("channel: {}", channel_id);
                 if channel_id == msg.channel_id.0 {
-                    println!("channel found");
                     continue;
                 };
                 match ctx.cache.guild_channel(channel_id) {
                     Some(channel) => {
-                        println!("{}", msg.content);
                         if channel.is_text_based() {
                             let webhooks = channel.webhooks(ctx).await?;
                             let mut webhook: Option<serenity::Webhook> = None;
@@ -90,7 +86,6 @@ async fn all_event_handler(
                                 }
                             }
                             if let Some(webhook) = webhook {
-                                println!("webhook found");
                                 webhook
                                     .execute(&ctx.http, false, |w| {
                                         w.content(msg.content.clone());
@@ -100,7 +95,6 @@ async fn all_event_handler(
                                     })
                                     .await?;
                             } else {
-                                println!("webhook not found");
                                 let webhook =
                                     channel.create_webhook(&ctx.http, "gc-webhook").await?;
                                 webhook
