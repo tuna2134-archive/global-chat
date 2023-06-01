@@ -34,13 +34,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Install dependences
-        run: |
-          cd docs && \
-            npm install -g npm \
-            pnpm install
       - name: Build docs
-        run: cd docs && pnpm build
+        run: npm install -g pnpm && cd docs && pnpm install && pnpm build
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
